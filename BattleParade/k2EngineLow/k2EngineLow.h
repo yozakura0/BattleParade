@@ -7,11 +7,13 @@
 #include "tkFile/TkaFile.h"
 #include "graphics/Shader.h"
 #include "time/FPSLimitter.h"
+#include "graphics/RenderingEngine.h"
 
 namespace nsK2EngineLow {
 	class GraphicsEngine;
 	class GameTime;
 	class Texture;
+	class RenderingEngine;
 	class Font;
 
 	class K2EngineLow {
@@ -221,5 +223,6 @@ namespace nsK2EngineLow {
 
 	extern K2EngineLow* g_engine;	// 低レベルK2エンジン。
 	extern GameTime* g_gameTime;
+	extern RenderingEngine* g_renderingEngine;
 }
 
