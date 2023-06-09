@@ -56,10 +56,10 @@ namespace nsK2EngineLow {
 		//void Update();
 
 		//描画オブジェクトを追加
-		void AddRenderObject(ModelRender* renderObject)
+		/*void AddRenderObject(IRenderer* renderObject)
 		{
-			m_renderObject.push_back(renderObject);
-		}
+			m_renderObjects.push_back(renderObject);
+		}*/
 
 		//イベントリスナーを追加
 		void AddEventListener(void* pListenerObj,std::function<void(EnEvent enEvent)> listenerFunc)
@@ -67,7 +67,7 @@ namespace nsK2EngineLow {
 			m_eventListeners.push_back({ pListenerObj,listenerFunc });
 		}
 
-		std::vector< ModelRender* > m_renderObject;
+		//std::vector< IRenderer* > m_renderObjects;
 
 		struct SEventListenerData
 		{
