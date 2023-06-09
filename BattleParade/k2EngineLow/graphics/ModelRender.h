@@ -35,6 +35,14 @@ namespace nsK2EngineLow {
 			//m_animation.Play(animNo, interpolateTime);
 		}
 
+		//座標、回転、大きさを全て設定
+		void SetTRS(const Vector3& pos, const Quaternion& rotation, const Vector3& scale)
+		{
+			SetPosition(pos);
+			SetRotation(rotation);
+			SetScale(scale);
+		}
+
 		//座標の設定
 		void SetPosition(const Vector3& pos)
 		{
