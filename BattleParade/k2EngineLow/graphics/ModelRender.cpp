@@ -7,6 +7,7 @@ namespace nsK2EngineLow
 
 	ModelRender::ModelRender()
 	{
+		
 	}
 
 	ModelRender::~ModelRender()
@@ -22,8 +23,8 @@ namespace nsK2EngineLow
 
 	void ModelRender::Init(
 		const char* filePath
-		/*AnimationClip* animationClips = nullptr,
-		int numAnimationClips = 0,
+		/*AnimationClip* animationClips,
+		int numAnimationClips,
 		EnModelUpAxis enModelUpAxis = enModelUpAxisZ*/
 	)
 	{
@@ -35,6 +36,24 @@ namespace nsK2EngineLow
 		//InitSkeleton(filePath);
 		//アニメーションを初期化
 		//InitAnimation(animationClips, numAnimationClips, enModelUpAxis);
+
+		sdirectionalLight.Setup();
+		spointLight.SetUp();
+		sotherLight.Setup();
+
+		//sceneLight.Init();
+
+		light.directionalLight.ligDirection = sdirectionalLight.GetligDir();
+		light.directionalLight.ligColor = sdirectionalLight.GetColor();
+		light.pointLight.ptPosition = spointLight.GetPosition();
+		light.pointLight.ptColor = spointLight.GetColor();
+		light.pointLight.ptRange = spointLight.GetRange();
+		light.ambientLight = sotherLight.GetAmbientLight();
+		light.eyePos = sotherLight.GetEyePos();
+
+		//定数バッファにとても送りたい
+		m_modelInitData.m_expandConstantBuffer = &light;
+		m_modelInitData.m_expandConstantBufferSize = sizeof(light);
 		
 		m_Model.Init(m_modelInitData);
 	}

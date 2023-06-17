@@ -1,9 +1,47 @@
 #pragma once
 
 //#include "geometry/"
+#include "Light/SceneLight.h"
 
 namespace nsK2EngineLow {
+
 	class RenderingEngine;
+	//class SceneLight;
+
+	struct DirectionalLight
+	{
+		//ライトの方向
+		Vector3 ligDirection;
+		//パディング
+		float pad;
+		//ライトのカラー
+		Vector4 ligColor;
+	};
+
+	struct PointLight
+	{
+		//ライトの位置
+		Vector3 ptPosition;
+		float pad2;
+		//ライトのカラー
+		Vector3 ptColor;
+		//ライトの影響範囲
+		float ptRange;
+	};
+
+	struct Light
+	{
+		//ディレクションライトの配列(最大1個置ける)
+		DirectionalLight directionalLight;
+		//ポイントライトの配列
+		PointLight pointLight;
+
+		//カメラの位置
+		Vector3 eyePos;
+
+		//環境光
+		Vector3 ambientLight;
+	};
 
 	class ModelRender :public IRenderer
 	{
@@ -121,7 +159,26 @@ namespace nsK2EngineLow {
 		//float m_animationSpeed = 1.0f;
 		//ジオメトリ情報
 		//std::vector<Gemo>
+
+		//SceneLight sceneLight;
 		
+		//シーンライトのライト
+		/*SLight slight;*/
+
+		//シーンライトのディレクションライト
+		SDirectionalLight sdirectionalLight;
+
+		//シーンライトのポイントライト
+		SPointLight spointLight;
+
+		//シーンライトのそのほかライト
+		SOtherLight sotherLight;
+
+		//モデルレンダー内のディレクションライト
+		//DirectionalLight directionalLight;
+
+		//ライト
+		Light light;
 	};
 }
 

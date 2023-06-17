@@ -8,6 +8,7 @@
 #include "graphics/Shader.h"
 #include "time/FPSLimitter.h"
 #include "graphics/RenderingEngine.h"
+//#include "graphics/Light/SceneLight.h"
 
 namespace nsK2EngineLow {
 	class GraphicsEngine;
@@ -15,6 +16,7 @@ namespace nsK2EngineLow {
 	class Texture;
 	class RenderingEngine;
 	class Font;
+	//class SceneLight;
 
 	class K2EngineLow {
 	public:
@@ -204,6 +206,7 @@ namespace nsK2EngineLow {
 		}
 		
 	private:
+		//RenderingEngine m_renderingEngine;
 #ifdef K2_DEBUG
 		std::unique_ptr<Font> m_fpsFont;
 		std::unique_ptr<Font> m_fpsFontShadow;
@@ -224,5 +227,6 @@ namespace nsK2EngineLow {
 	extern K2EngineLow* g_engine;	// 低レベルK2エンジン。
 	extern GameTime* g_gameTime;
 	extern RenderingEngine* g_renderingEngine;
+	//extern SceneLight* g_sceneLight;
 }
 

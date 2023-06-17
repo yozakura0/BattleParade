@@ -3,9 +3,18 @@
 
 namespace nsK2EngineLow {
 	
+	/*RenderingEngine::RenderingEngine()
+	{
+		g_sceneLight = &m_sceneLig;
+	}
+	RenderingEngine::~RenderingEngine()
+	{
+		g_sceneLight = nullptr;
+	}*/
+
 	/*void RenderingEngine::Init()
 	{
-
+		m_sceneLig.Init();
 	}*/
 
 	/*void RenderingEngine::Update()

@@ -1,5 +1,6 @@
 #pragma once
 //#include "IRenderer.h"
+//#include "Light/SceneLight.h"
 
 namespace nsK2EngineLow {
 
@@ -48,8 +49,8 @@ namespace nsK2EngineLow {
 			enEventReInitIBLTexture
 		};
 
-		//RenderingEngine();
-		//~RenderingEngine();
+		/*RenderingEngine();
+		~RenderingEngine();*/
 
 		//void Init();
 
@@ -68,7 +69,11 @@ namespace nsK2EngineLow {
 		}
 
 		//std::vector< IRenderer* > m_renderObjects;
+	private:
+		//シーンライト
+		//SceneLight m_sceneLig;
 
+		//イベントリスナーのデータ
 		struct SEventListenerData
 		{
 			//リスナーオブジェクト
@@ -76,6 +81,7 @@ namespace nsK2EngineLow {
 			std::function<void(EnEvent enEvent)> listenerfunc;
 		};
 
+		//イベントリスナー
 		std::list<SEventListenerData> m_eventListeners;
 	};
 }
