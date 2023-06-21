@@ -13,7 +13,7 @@ namespace nsK2EngineLow {
 		//ライトの方向
 		Vector3 ligDirection;
 		//パディング
-		float pad;
+		float pad1;
 		//ライトのカラー
 		Vector4 ligColor;
 	};
@@ -29,12 +29,43 @@ namespace nsK2EngineLow {
 		float ptRange;
 	};
 
+	struct SpotLight
+	{
+		//位置
+		Vector3 spPosition;
+		float pad3;
+		//カラー
+		Vector3 spColor;
+		//影響範囲
+		float spRange;
+		//射出方向
+		Vector3 spDirection;
+		//射出角度
+		float spAngle;
+	};
+
+	struct HemiLight
+	{
+		//地面色
+		Vector3 groundColor;
+		float pad4;
+		//天球色
+		Vector3 skyColor;
+		float pad5;
+		//地面の法線
+		Vector3 groundNormal;
+	};
+
 	struct Light
 	{
 		//ディレクションライトの配列(最大1個置ける)
 		DirectionalLight directionalLight;
 		//ポイントライトの配列
 		PointLight pointLight;
+		//スポットライトの配列
+		SpotLight spotLight;
+		//半球ライトの配列
+		HemiLight hemiLight;
 
 		//カメラの位置
 		Vector3 eyePos;
@@ -73,6 +104,12 @@ namespace nsK2EngineLow {
 			//m_animation.Play(animNo, interpolateTime);
 		}
 
+		//モデルの取得
+		Model& GetModel()
+		{
+			return m_Model;
+		}
+
 		//座標、回転、大きさを全て設定
 		void SetTRS(const Vector3& pos, const Quaternion& rotation, const Vector3& scale)
 		{
@@ -107,6 +144,12 @@ namespace nsK2EngineLow {
 		void SetScale(float x, float y, float z)
 		{
 			SetScale({ x,y,z });
+		}
+
+		void SetPointLightPosition(const Vector3& pos)
+		{
+			PointLight pointLight;
+			pointLight.ptPosition = pos;
 		}
 
 	private:
@@ -170,6 +213,12 @@ namespace nsK2EngineLow {
 
 		//シーンライトのポイントライト
 		SPointLight spointLight;
+
+		//シーンライトのスポットライト
+		SSpotLight sspotLight;
+
+		//シーンライトの半球ライト
+		SHemiLight shemiLight;
 
 		//シーンライトのそのほかライト
 		SOtherLight sotherLight;

@@ -39,6 +39,8 @@ namespace nsK2EngineLow
 
 		sdirectionalLight.Setup();
 		spointLight.SetUp();
+		sspotLight.SetUp();
+		shemiLight.SetUp();
 		sotherLight.Setup();
 
 		//sceneLight.Init();
@@ -50,8 +52,16 @@ namespace nsK2EngineLow
 		light.pointLight.ptRange = spointLight.GetRange();
 		light.ambientLight = sotherLight.GetAmbientLight();
 		light.eyePos = sotherLight.GetEyePos();
+		light.spotLight.spPosition = sspotLight.GetPosition();
+		light.spotLight.spColor = sspotLight.GetColor();
+		light.spotLight.spRange = sspotLight.GetRange();
+		light.spotLight.spDirection = sspotLight.GetDirection();
+		light.spotLight.spAngle = sspotLight.GetAngle();
+		light.hemiLight.groundColor = shemiLight.GetGroundColor();
+		light.hemiLight.skyColor = shemiLight.GetSkyColor();
+		light.hemiLight.groundNormal = shemiLight.GetGroundNormal();
 
-		//定数バッファにとても送りたい
+		//定数バッファに送る
 		m_modelInitData.m_expandConstantBuffer = &light;
 		m_modelInitData.m_expandConstantBufferSize = sizeof(light);
 		

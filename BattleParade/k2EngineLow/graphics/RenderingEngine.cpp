@@ -5,7 +5,7 @@ namespace nsK2EngineLow {
 	
 	/*RenderingEngine::RenderingEngine()
 	{
-		g_sceneLight = &m_sceneLig;
+		g_sceneLight = &m_sceneLight;
 	}
 	RenderingEngine::~RenderingEngine()
 	{

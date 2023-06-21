@@ -52,7 +52,7 @@ namespace nsK2EngineLow {
 		/*RenderingEngine();
 		~RenderingEngine();*/
 
-		//void Init();
+		void Init();
 
 		//void Update();
 
@@ -71,7 +71,7 @@ namespace nsK2EngineLow {
 		//std::vector< IRenderer* > m_renderObjects;
 	private:
 		//シーンライト
-		//SceneLight m_sceneLig;
+		//SceneLight m_sceneLight;
 
 		//イベントリスナーのデータ
 		struct SEventListenerData
