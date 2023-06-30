@@ -67,13 +67,17 @@ struct SSkinVSIn{
 struct SVSIn{
 	float4 pos 		: POSITION;		//モデルの頂点座標。
 	float3 normal	: NORMAL;
+	//float3 tangent	: TANGENT;		//接ベクトル
+	//float3 biNormal	: BINORMAL;		//従ベクトル
 	float2 uv 		: TEXCOORD0;	//UV座標。
 	SSkinVSIn skinVert;				//スキン用のデータ。
 };
 //ピクセルシェーダーへの入力。
 struct SPSIn{
 	float4 pos 			: SV_POSITION;	//スクリーン空間でのピクセルの座標。
-	float3 normal		: NORMAL;
+	float3 normal		: NORMAL;		//法線
+	//float3 tangent		: TANGENT;		//接ベクトル
+	//float3 biNormal		: BINORMAL;		//従ベクトル
 	float2 uv 			: TEXCOORD0;	//uv座標。
 	float3 worldPos		: TEXCOORD1;
 	float3 normalInView	: TEXCOORD2;	//カメラ空間の法線
@@ -90,6 +94,8 @@ float3 CalcLigFromDirectionLight(SPSIn psIn);
 // グローバル変数。
 ////////////////////////////////////////////////
 Texture2D<float4> g_albedo : register(t0);				//アルベドマップ
+//Texture2D<float4> g_normalMap : register(t1);
+Texture2D<float4> g_specularMap : register(t2);
 StructuredBuffer<float4x4> g_boneMatrix : register(t3);	//ボーン行列。
 sampler g_sampler : register(s0);	//サンプラステート。
 
@@ -136,6 +142,9 @@ SPSIn VSMainCore(SVSIn vsIn, uniform bool hasSkin)
 	//頂点法線をピクセルシェーダーに渡す
 	psIn.normal = mul(mWorld, vsIn.normal);
 
+	/*psIn.tangent = normalize(mul(mWorld, vsIn.tangent));
+	psIn.biNormal = normalize(mul(mWorld, vsIn.biNormal));*/
+
 	psIn.uv = vsIn.uv;
 
 	//カメラ空間の法線を求める
@@ -163,6 +172,16 @@ SPSIn VSSkinMain( SVSIn vsIn )
 /// </summary>
 float4 PSMain(SPSIn psIn) : SV_Target0
 {
+	////法線マップからタンジェントスペースの法線をサンプリング
+	//float3 localNormal = g_normalMap.Sample(g_sampler,psIn.uv).xyz;
+	////タンジェントスペースの法線を0～1の範囲から-1～1の範囲に復元
+	//localNormal = (localNormal - 0.5f) * 2.0f;
+
+	////タンジェントスペースの法線をワールドスペースに変換
+	//normal = psIn.tangent * localNormal.x
+	//	+ psIn.biNormal * localNormal.y
+	//	+ normal * localNormal.z;
+
 	//ディレクションライトによるライティングを計算
 	float3 directionLig = CalcLigFromDirectionLight(psIn);
 
@@ -170,7 +189,7 @@ float4 PSMain(SPSIn psIn) : SV_Target0
 	float3 pointLig = CalcLigFromPointLight(psIn);
 
 	//スポットライトによるライティングを計算
-	float3 spotLig = CalcLigFromSpotLight(psIn);
+	//float3 spotLig = CalcLigFromSpotLight(psIn);
 
 	//サーフェイスの法線と光の入射方向に依存するリムの強さを求める
 	float power1 = 1.0f - max(0.0f, dot(dirDirection, psIn.normal));
@@ -195,7 +214,7 @@ float4 PSMain(SPSIn psIn) : SV_Target0
 	float3 hemiLight = lerp(groundColor, skyColor, t);
 
 	//ライトの効果を合わせる
-	float3 lig = directionLig + pointLig + ambientLight + spotLig;
+	float3 lig = directionLig + pointLig + ambientLight/* + spotLig*/;
 	lig += limColor + hemiLight;
 
 	float4 albedoColor = g_albedo.Sample(g_sampler, psIn.uv);
@@ -238,7 +257,15 @@ float3 CalcPhongSpecular(float3 lightDirection, float3 lightColor, float3 worldP
 	t = pow(t, 5.0f);
 
 	//鏡面反射光を求める
-	return lightColor * t;
+	float3 specularLig = lightColor * t;
+
+	////スペキュラマップからスペキュラ反射の強さをサンプリング
+	//float specPower = g_specularMap.Sample(g_sampler, psIn.uv).r;
+
+	////鏡面反射の強さを鏡面反射光に乗算
+	//specularLig *= specPower;
+
+	return specularLig;
 }
 
 //スポットライトによる反射光を計算

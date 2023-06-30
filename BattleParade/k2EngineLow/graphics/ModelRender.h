@@ -83,13 +83,13 @@ namespace nsK2EngineLow {
 		//モデルレンダーの初期化
 		void Init(
 			//ファイルのパス
-			const char* filePath
-			////アニメーションクリップ
-			//AnimationClip* animationClips = nullptr,
-			////アニメーションクリップの数
-			//int numAnimationClips = 0,
-			////モデルの上方向の設定
-			//EnModelUpAxis enModelUpAxis = enModelUpAxisZ
+			const char* filePath,
+			//アニメーションクリップ
+			AnimationClip* animationClips = nullptr,
+			//アニメーションクリップの数
+			int numAnimationClips = 0,
+			//モデルの上方向の設定
+			EnModelUpAxis enModelUpAxis = enModelUpAxisZ
 		);
 
 		//更新処理
@@ -101,7 +101,7 @@ namespace nsK2EngineLow {
 		//アニメーションの再生
 		void PlayAnimation(int animNo, float interpolateTime = 0.0f)
 		{
-			//m_animation.Play(animNo, interpolateTime);
+			m_animation.Play(animNo, interpolateTime);
 		}
 
 		//モデルの取得
@@ -145,6 +145,10 @@ namespace nsK2EngineLow {
 		{
 			SetScale({ x,y,z });
 		}
+		void SetAnimationSpeed(const float animationSpeed)
+		{
+			m_animationSpeed = animationSpeed;
+		}
 
 		void SetPointLightPosition(const Vector3& pos)
 		{
@@ -153,21 +157,21 @@ namespace nsK2EngineLow {
 		}
 
 	private:
-		////スケルトンの初期化
-		//void InitSkeleton(
-		//	//ファイルパス
-		//	const char* filepath
-		//);
+		//スケルトンの初期化
+		void InitSkeleton(
+			//ファイルパス
+			const char* filepath
+		);
 
-		////アニメーションの初期化
-		//void InitAnimation(
-		//	//アニメーションクリップ
-		//	//AnimationClip* animationClips = nullptr,
-		//	//アニメーションクリップの数
-		//	int numAnimationClips = 0
-		//	//モデルの上向き
-		//	//EnModelUpAxis enModelUpAxis = enModelUpAxisZ
-		//);
+		//アニメーションの初期化
+		void InitAnimation(
+			//アニメーションクリップ
+			AnimationClip* animationClips,
+			//アニメーションクリップの数
+			int numAnimationClips,
+			//モデルの上向き
+			EnModelUpAxis enModelUpAxis
+		);
 
 		//各種モデルのワールド座標を更新する
 		void  UpdateWorldMatrixInModes();
@@ -177,9 +181,9 @@ namespace nsK2EngineLow {
 
 	private:
 		//アニメーションクリップ
-		//AnimationClip* m_animationClips = nullptr;
+		AnimationClip* m_animationClips = nullptr;
 		//アニメーションクリップの数
-		//int m_numAnimationClips = 0;
+		int m_numAnimationClips = 0;
 		//座標
 		Vector3 m_position = Vector3::Zero;
 		//回転
@@ -187,19 +191,22 @@ namespace nsK2EngineLow {
 		//拡大率
 		Vector3 m_scale = Vector3::One;
 		//アニメーション
-		//Animation m_animation;
+		Animation m_animation;
+		
 		//モデル
 		Model m_Model;
 		//モデルの初期化データ
 		ModelInitData m_modelInitData;
 		//フォワードレンダリングの描画パスで描画されるモデル
 		//Model m_forwardRenderModel;
+		
 		//RenderToGBufferで描画されるモデル
 		//Model m_renderToGBufferModel;
+		
 		//スケルトン
 		Skeleton m_skeleton;
 		//アニメーションの再生速度
-		//float m_animationSpeed = 1.0f;
+		float m_animationSpeed = 1.0f;
 		//ジオメトリ情報
 		//std::vector<Gemo>
 

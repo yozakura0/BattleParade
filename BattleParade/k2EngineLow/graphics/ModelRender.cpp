@@ -22,21 +22,24 @@ namespace nsK2EngineLow
 	}*/
 
 	void ModelRender::Init(
-		const char* filePath
-		/*AnimationClip* animationClips,
+		const char* filePath,
+		AnimationClip* animationClips,
 		int numAnimationClips,
-		EnModelUpAxis enModelUpAxis = enModelUpAxisZ*/
+		EnModelUpAxis enModelUpAxis
 	)
 	{
+		//モデル、シェーダー、モデルの上方向を設定
 		m_modelInitData.m_tkmFilePath = filePath;
 		m_modelInitData.m_fxFilePath = "Assets/shader/model.fx";
+		m_modelInitData.m_modelUpAxis = enModelUpAxis;
 
 		//SetupVertexShaderEntryPointFunc(m_modelInitData);
 		//スケルトンを初期化
-		//InitSkeleton(filePath);
+		InitSkeleton(filePath);
 		//アニメーションを初期化
-		//InitAnimation(animationClips, numAnimationClips, enModelUpAxis);
+		InitAnimation(animationClips, numAnimationClips, enModelUpAxis);
 
+		//ライトの情報を初期化する
 		sdirectionalLight.Setup();
 		spointLight.SetUp();
 		sspotLight.SetUp();
@@ -45,6 +48,7 @@ namespace nsK2EngineLow
 
 		//sceneLight.Init();
 
+		//ライトの情報を大量に持ってくる
 		light.directionalLight.ligDirection = sdirectionalLight.GetligDir();
 		light.directionalLight.ligColor = sdirectionalLight.GetColor();
 		light.pointLight.ptPosition = spointLight.GetPosition();
@@ -68,19 +72,20 @@ namespace nsK2EngineLow
 		m_Model.Init(m_modelInitData);
 	}
 
-	//void ModelRender::InitSkeleton(const char* filepath)
-	//{
-	//	//スケルトンのデータを読み込み
-	//	std::string skeletonFilePath = filepath;
-	//	int pos = (int)skeletonFilePath.find(".tkm");
-	//	skeletonFilePath.replace(pos, 4, ".tks");
-	//	//m_skeleton.Init(skeletonFilePath.c_str());
-	//}
+	void ModelRender::InitSkeleton(const char* filepath)
+	{
+		//スケルトンのデータを読み込み
+		std::string skeletonFilePath = filepath;
+		int pos = (int)skeletonFilePath.find(".tkm");
+		skeletonFilePath.replace(pos, 4, ".tks");
+		m_skeleton.Init(skeletonFilePath.c_str());
+	}
 
-	/*void ModelRender::InitAnimation(AnimationClip* animationClips = nullptr,int numAnimationClips = 0,EnModelUpAxis enModelUpAxis = enModelUpAxisZ)
+	void ModelRender::InitAnimation(AnimationClip* animationClips, int numAnimationClips, EnModelUpAxis enModelUpAxis)
 	{
 		m_animationClips = animationClips;
 		m_numAnimationClips = numAnimationClips;
+
 		if (m_animationClips != nullptr)
 		{
 			m_animation.Init(
@@ -88,8 +93,19 @@ namespace nsK2EngineLow
 				m_animationClips,
 				numAnimationClips
 			);
+
+			//スケルトンの有無で頂点シェーダーのエントリーポイントなどを変更
+			if (m_skeleton.GetNumBones() != 0)
+			{
+				m_modelInitData.m_skeleton = &m_skeleton;
+				m_modelInitData.m_vsSkinEntryPointFunc = "VSSkinMain";
+			}
+			else
+			{
+				m_modelInitData.m_vsSkinEntryPointFunc = "VSMain";
+			}
 		}
-	}*/
+	}
 
 	void ModelRender::UpdateWorldMatrixInModes()
 	{
@@ -105,7 +121,7 @@ namespace nsK2EngineLow
 			m_skeleton.Update(m_Model.GetWorldMatrix());
 		}
 
-		//m_animation.Progress(g_gameTime->GetFrameDeltaTime() * m_animationSpeed);
+		m_animation.Progress(g_gameTime->GetFrameDeltaTime() * m_animationSpeed);
 	}
 
 	void ModelRender::Draw(RenderContext& rc)
