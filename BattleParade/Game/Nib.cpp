@@ -3,6 +3,11 @@
 
 Nib::Nib()
 {
+	AnimationClips[Afall].Load("Assets/animData/nib/moveA.tka");
+	AnimationClips[Afall].SetLoopFlag(false);
+	AnimationClips[Bfall].Load("Assets/animData/nib/moveB.tka");
+	AnimationClips[Bfall].SetLoopFlag(false);
+
 	PhysicsWorld::GetInstance()->EnableDrawDebugWireFrame();
 
 	srand((unsigned int)time(NULL));
@@ -114,9 +119,11 @@ void Nib::Timer()
 			{
 			case 0:
 				floarA.CreateFromModel(A.GetModel(), A.GetModel().GetWorldMatrix());
+				A.PlayAnimation(Afall, 0.2f);
 				break;
 			case 1:
 				floarB.CreateFromModel(B.GetModel(), B.GetModel().GetWorldMatrix());
+				B.PlayAnimation(Bfall, 0.2f);
 				break;
 			}
 			round++;
