@@ -10,7 +10,8 @@ public:
 	void Render(RenderContext& rc);
 	void Move();
 	void Rotation();
-	//void Animation();
+	void State();
+	void Animation();
 
 	ModelRender Character;
 	Vector3 CharaPos;
@@ -21,9 +22,10 @@ public:
 	enum EnAnimationClip {		//アニメーション。
 		enAnimationClip_Idle,
 		enAnimationClip_Walk,
-		//enAnimationClip_Jump,
+		enAnimationClip_Fall,
+		enAnimationClip_Jump,
 		enAnimationClip_Run,
-		enAnimationClip_Num,
+		enAnimationClip_Num
 	};
 
 	Nib* nib;
@@ -31,5 +33,13 @@ public:
 
 	//スティックの入力量を保存する変数
 	Vector3 StickL;
+
+	//プレイヤーの状態
+	int P_state = 0;
+
+	//フラグ類
+	bool fall = false;
+	bool walk = false;
+	bool attack = false;
 };
 

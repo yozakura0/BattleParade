@@ -7,13 +7,15 @@ Player::Player()
 {
 	nib = FindGO<Nib>("nib");
 
-	/*AnimationClips[enAnimationClip_Idle].Load("Assets/character/oriidle.tka");
+	AnimationClips[enAnimationClip_Idle].Load("Assets/animData/idle.tka");
 	AnimationClips[enAnimationClip_Idle].SetLoopFlag(true);
-	AnimationClips[enAnimationClip_Walk].Load("Assets/character/oriwalk.tka");
-	AnimationClips[enAnimationClip_Walk].SetLoopFlag(true);*/
+	AnimationClips[enAnimationClip_Walk].Load("Assets/animData/walk.tka");
+	AnimationClips[enAnimationClip_Walk].SetLoopFlag(true);
+	AnimationClips[enAnimationClip_Walk].Load("Assets/animData/fall.tka");
+	AnimationClips[enAnimationClip_Walk].SetLoopFlag(true);
 
 	Character.SetScale({ 2.0f,2.0f,2.0f, });
-	Character.Init("Assets/modelData/player/player1.tkm");
+	Character.Init("Assets/modelData/player/orichara.tkm");
 	Character.Update();
 	
 	playerController.Init(120.0f, 240.0f, CharaPos);
@@ -39,7 +41,8 @@ void Player::Update()
 			Character.SetPosition(CharaPos);
 		}
 	}
-	//Animation();
+	State();
+	Animation();
 	Character.Update();
 }
 
@@ -50,9 +53,8 @@ void Player::Move()
 	moveSpeed.z = 0.0f;
 
 	//左スティックの入力量を取得。
-	Vector3 stickL;
-	stickL.x = g_pad[0]->GetLStickXF();
-	stickL.y = g_pad[0]->GetLStickYF();
+	StickL.x = g_pad[0]->GetLStickXF();
+	StickL.y = g_pad[0]->GetLStickYF();
 
 	//カメラの前方向と右方向のベクトルを持ってくる。
 	Vector3 forward = g_camera3D->GetForward();
@@ -62,8 +64,8 @@ void Player::Move()
 	right.y = 0.0f;
 
 	//左スティックの入力量と50.0fを乗算。
-	right *= stickL.x * 900.0f;
-	forward *= stickL.y * 900.0f;
+	right *= StickL.x * 900.0f;
+	forward *= StickL.y * 900.0f;
 
 	//移動速度にスティックの入力量を加算する。
 	moveSpeed += right + forward;
@@ -98,6 +100,44 @@ void Player::Rotation()
 		CharaRot.SetRotationYFromDirectionXZ(moveSpeed);
 		//絵描きさんに回転を教える。
 		Character.SetRotation(CharaRot);
+	}
+}
+
+void Player::State()
+{
+	if (StickL.x != 0 || StickL.y != 0)
+	{
+		//歩き
+		P_state = 1;
+	}
+	//プレイヤーステートの変更
+	else if (playerController.IsOnGround() == false)
+	{
+		//落下
+		P_state = 2;
+	}
+	else
+	{
+		P_state = 0;
+	}
+}
+
+void Player::Animation()
+{
+	switch (P_state)
+	{
+		//立ちモーション
+	case 0:
+		Character.PlayAnimation(enAnimationClip_Idle, 0.2f);
+		break;
+		//歩きモーション
+	case 1:
+		Character.PlayAnimation(enAnimationClip_Walk, 0.2f);
+		break;
+		//落下モーション
+	case 2:
+		Character.PlayAnimation(enAnimationClip_Fall, 0.2f);
+		break;
 	}
 }
 
