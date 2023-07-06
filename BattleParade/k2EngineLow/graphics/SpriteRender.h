@@ -11,7 +11,9 @@ namespace nsK2EngineLow {
 			//‰¡•
 			const float w, 
 			//c•
-			const float h
+			const float h,
+			//”¼“§–¾‡¬‚ğ‚·‚é‚©
+			AlphaBlendMode alphaBlendMode = AlphaBlendMode_Trans
 		);
 
 		//À•W‚ğİ’è
