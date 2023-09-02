@@ -95,17 +95,32 @@ namespace nsK2EngineLow
 			);
 
 			//スケルトンの有無で頂点シェーダーのエントリーポイントなどを変更
-			if (m_skeleton.GetNumBones() != 0)
-			{
+			/*if (m_skeleton.GetNumBones() != 0)
+			{*/
 				m_modelInitData.m_skeleton = &m_skeleton;
 				m_modelInitData.m_vsSkinEntryPointFunc = "VSSkinMain";
-			}
+			/*}
 			else
 			{
 				m_modelInitData.m_vsSkinEntryPointFunc = "VSMain";
-			}
+			}*/
 		}
 	}
+
+	/*void ModelRender::InitComputeAnimatoinVertexBuffer(
+		const char* tkmFilePath,
+		EnModelUpAxis enModelUpAxis)
+	{
+		StructuredBuffer* worldMatrxiArraySB = nullptr;
+		
+		m_computeAnimationVertexBuffer.Init(
+			tkmFilePath,
+			m_skeleton.GetNumBones(),
+			m_skeleton.GetBoneMatricesTopAddress(),
+			enModelUpAxis,
+			worldMatrxiArraySB
+		);
+	}*/
 
 	void ModelRender::UpdateWorldMatrixInModes()
 	{
@@ -130,5 +145,7 @@ namespace nsK2EngineLow
 		//g_renderingEngine->AddRenderObject(this);
 
 		m_Model.Draw(rc);
+		
+		//bloom.OnRender(rc);
 	}
 }

@@ -2,6 +2,7 @@
 
 //#include "geometry/"
 #include "Light/SceneLight.h"
+#include "postEffect/Bloom.h"
 
 namespace nsK2EngineLow {
 
@@ -69,7 +70,8 @@ namespace nsK2EngineLow {
 
 		//カメラの位置
 		Vector3 eyePos;
-
+		//スペキュラの絞り
+		float specPow = 5.0f;
 		//環境光
 		Vector3 ambientLight;
 	};
@@ -145,9 +147,16 @@ namespace nsK2EngineLow {
 		{
 			SetScale({ x,y,z });
 		}
+		//アニメーションの速さの変更
 		void SetAnimationSpeed(const float animationSpeed)
 		{
 			m_animationSpeed = animationSpeed;
+		}
+
+		//アニメーションイベント
+		void AddAnimationEvent(AnimationEventListener eventListener)
+		{
+			m_animation.AddAnimationEventListener(eventListener);
 		}
 
 		void SetPointLightPosition(const Vector3& pos)
@@ -173,6 +182,12 @@ namespace nsK2EngineLow {
 			EnModelUpAxis enModelUpAxis
 		);
 
+		////アニメーション済頂点バッファの計算処理を初期化
+		//void InitComputeAnimatoinVertexBuffer(
+		//	const char* tkmFilePath,
+		//	EnModelUpAxis enModelUpAxis
+		//);
+
 		//各種モデルのワールド座標を更新する
 		void  UpdateWorldMatrixInModes();
 
@@ -192,6 +207,7 @@ namespace nsK2EngineLow {
 		Vector3 m_scale = Vector3::One;
 		//アニメーション
 		Animation m_animation;
+		//
 		
 		//モデル
 		Model m_Model;

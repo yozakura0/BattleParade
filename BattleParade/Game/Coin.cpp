@@ -1,54 +1,34 @@
 #include "stdafx.h"
 #include "Coin.h"
+#include "CoinNumbers.h"
+#include "CoinPlayer.h"
+#include "CoinAIplayerFirst.h"
+#include "CoinAIplayerSecond.h"
+#include "CoinAIplayerThird.h"
+#include "CoinUI.h"
+#include "CoinGameResult.h"
 
 Coin::Coin()
 {
 	srand((unsigned int)time(NULL));
+
+	gametime = maxGameTime;
 	
 	//ステージの初期化
-	stageRender.Init("Assets/modelData/coin/stage.tkm");
+	stageRender.Init("Assets/modelData/coin/stage3.tkm");
 	stageRender.SetPosition(0.0f, 0.0f, 0.0f);
 	stageRender.Update();
 	stageObject.CreateFromModel(stageRender.GetModel(), stageRender.GetModel().GetWorldMatrix());
 
-	//プレイヤーキャラクターの初期化
-	charaRender.Init("Assets/modelData/player/orichara.tkm");
-	charaRender.SetScale({ 5.0f,5.0f,5.0f });
-	charaRender.SetPosition(charaPos);
-	playerController.Init(120.0f, 240.0f, charaPos);
+	m_coinPlayer = NewGO<CoinPlayer>(2, "coinPlayer");
+	m_coinAI1 = NewGO<CoinAIplayerFirst>(2, "coinAI1");
+	m_coinAI2 = NewGO<CoinAIplayerSecond>(2, "coinAI2");
+	m_coinAI3 = NewGO<CoinAIplayerThird>(2, "coinAI3");
+	m_coinUI = NewGO<CoinUI>(1, "coinUI");
 
-	//AIキャラクターの初期化
-	AIRender[0].Init("Assets/modelData/player/AIorichara1.tkm");
-	AIRender[1].Init("Assets/modelData/player/AIorichara2.tkm");
-	AIRender[2].Init("Assets/modelData/player/AIorichara3.tkm");
-	aiPos[0] = { 5200.0f,3000.0f,0.0f };
-	aiPos[1] = { -5200.0f,3000.0f,0.0f };
-	aiPos[2] = { 0.0f,3000.0f,5000.0f };
-	for (int i = 0; i < AICount; i++)
-	{
-		AIRender[i].SetScale({ 5.0f,5.0f,5.0f });
-		AIRender[i].SetPosition(aiPos[i]);
-		AIController[i].Init(120.0f, 240.0f, aiPos[i]);
-		aiMoveSpeed[i] = { 0.0f,0.0f,0.0f };
-	}
-
-	for (int i = 0; i < 4; i++)
-	{
-		playerPoint[i] = 0;
-	}
-
-	AnimationClips[enAnimationClip_Idle].Load("Assets/modelData/player/oriidle.tka");
-	AnimationClips[enAnimationClip_Idle].SetLoopFlag(true);
-	AnimationClips[enAnimationClip_Walk].Load("Assets/modelData/player/oriwalk.tka");
-	AnimationClips[enAnimationClip_Walk].SetLoopFlag(true);
-	AnimationClips[enAnimationClip_Walk].Load("Assets/modelData/player/orifall.tka");
-	AnimationClips[enAnimationClip_Walk].SetLoopFlag(true);
-	AnimationClips[enAnimationClip_Walk].Load("Assets/modelData/player/orijump.tka");
-	AnimationClips[enAnimationClip_Walk].SetLoopFlag(false);
-
-	g_camera3D->SetPosition(cameraPos);
-	g_camera3D->SetTarget({ 0.0f, 0.0f, 0.0f });
-	g_camera3D->SetFar(15000.0f);
+	g_camera3D->SetPosition(CameraPos);
+	g_camera3D->SetTarget(CameraTargetPos);
+	g_camera3D->SetFar(CameraFar);
 
 	//コインの全座標を登録
 	for (int i = 0; i < 6; i++)
@@ -242,41 +222,6 @@ void Coin::Update()
 	{
 		coinRender[i].SetRotation(rotation);
 	}
-	
-	//プレイヤーの移動
-	PlayerMove();
-	//AIキャラクターの移動
-	AIMove();
-	
-	bool getFlag = false;
-
-	//コイン獲得処理
-	getFlag = CoinGet(charaPos);
-	if (getFlag)
-	{
-		playerPoint[0] += 1;
-	}
-	getFlag = CoinGet(aiPos[0]);
-	if (getFlag)
-	{
-		playerPoint[1] += 1;
-	}
-	getFlag = CoinGet(aiPos[1]);
-	if (getFlag)
-	{
-		playerPoint[2] += 1;
-	}
-	getFlag = CoinGet(aiPos[2]);
-	if (getFlag)
-	{
-		playerPoint[3] += 1;
-	}
-
-	//時間の表示
-	wchar_t timeText[256];
-	swprintf_s(timeText, 256, L"%d", gametime);
-	timeRender.SetText(timeText);
-	timeRender.SetPosition({ 400.0f,500.0f });
 
 	//コインの更新処理
 	for (int i = 0; i < coinCount; i++)
@@ -292,12 +237,13 @@ void Coin::Update()
 		gametime--;
 	}
 
-	//デバッグ用
-	//プレイヤーの座標を表示
-	wchar_t showPosText[256];
-	swprintf_s(showPosText, 256, L"x:%d,\ny:%d,\nz:%d", (int)charaPos.x, (int)charaPos.y, (int)charaPos.z);
-	showPos.SetText(showPosText);
-	showPos.SetPosition({ -400.0f,500.0f });
+	//一定時間ごとにコインを再配置する
+	if ((/*gametime == 10 || gametime == 30 || gametime == 50*/gametime % 10 == 0) && gametime > 0 && timeFrameCount == 0)
+	{
+		ShowCoin();
+
+		return;
+	}
 
 	//コインが盤面に残っているか確認
 	for (int i = 0; i < coinCount; i++)
@@ -312,107 +258,9 @@ void Coin::Update()
 	//残っていなければ
 	//コインを再び撒く
 	ShowCoin();
-	
-	//ゲームクリア処理
-	/*gameClear();*/
 }
 
-void Coin::PlayerMove()
-{
-	//xzの移動速度を0.0fにする。
-	charaMoveSpeed.x = 0.0f;
-	charaMoveSpeed.z = 0.0f;
-
-	//左スティックの入力量を取得。
-	StickL.x = g_pad[0]->GetLStickXF() * -1200.0f;
-	StickL.z = g_pad[0]->GetLStickYF() * -1200.0f;
-
-	//スティックの入力をmoveSpeedに入れ込む
-	charaMoveSpeed.x = StickL.x;
-	charaMoveSpeed.z = StickL.z;
-
-	//moveSpeedでプレイヤーの座標を変更
-	charaPos = playerController.Execute(charaMoveSpeed, 1.0f / 60.0f);
-
-	//ジャンプ処理
-	if (g_pad[0]->IsTrigger(enButtonA) && playerController.IsOnGround() == true)
-	{
-		charaMoveSpeed.y = 3550.0f;
-	}
-
-	//飛んでいれば重力をかける
-	if (playerController.IsOnGround() == false)
-	{
-		charaMoveSpeed.y -= 75.0f;
-	}
-
-	//座標変更と更新
-	charaRender.SetPosition(charaPos);
-	charaRender.Update(); 
-}
-
-void Coin::AIMove()
-{
-	for (int i = 0; i < AICount; i++)
-	{
-		
-		float nearestDirection = 50000.0f;
-		int nearestCoin = 0;
-
-		for (int j = 0; j < coinCount; j++)
-		{
-			//キャラとコインの距離を計算
-			direction = 0.0f;
-			float x = aiPos[i].x - coinPos[j].x;
-			float y = aiPos[i].y + 200.0f - coinPos[j].y;
-			float z = aiPos[i].z - coinPos[j].z;
-			direction = x * x + y * y + z * z;
-			direction = sqrtf(direction);
-
-			if (nearestDirection > direction)
-			{
-				nearestDirection = direction;
-				nearestCoin = j;
-			}
-		}
-
-		Vector3 coinVector;
-		coinVector.x = coinPos[nearestCoin].x - aiPos[i].x;
-		/*coinVector.y = coinPos[nearestCoin].y - aiPos[i].y;*/
-		coinVector.z = coinPos[nearestCoin].z - aiPos[i].z;
-
-		coinVector.Normalize();
-
-		aiMoveSpeed[i].x = coinVector.x * 900.0f;
-		/*aiMoveSpeed[i].y = coinVector.y * 900.0f;*/
-		aiMoveSpeed[i].z = coinVector.z * 900.0f;
-		
-		//ジャンプ処理
-		
-		if (AIController[i].IsOnGround() == true && (difference[i].x == aiPos[i].x || difference[i].z == aiPos[i].z))
-		{
-			aiMoveSpeed[i].y = 3550.0f;
-		}
-
-		//飛んでいれば重力をかける
-		if (AIController[i].IsOnGround() == false)
-		{
-			aiMoveSpeed[i].y -= 75.0f;
-		}
-
-		difference[i] = aiPos[i];
-
-		//moveSpeedでプレイヤーの座標を変更
-		aiPos[i] = AIController[i].Execute(aiMoveSpeed[i], 1.0f / 60.0f);
-		
-
-		//座標更新と更新
-		AIRender[i].SetPosition(aiPos[i]);
-		AIRender[i].Update();
-	}
-}
-
-bool Coin::CoinGet(Vector3 pos)
+int Coin::CoinGet(Vector3 pos)
 {
 	for (int i = 0; i < coinCount; i++)
 	{
@@ -429,10 +277,10 @@ bool Coin::CoinGet(Vector3 pos)
 		{
 			coinPos[i] = { 0.0f,-100000.0f,0.0f };
 			coinRender[i].SetPosition(coinPos[i]);
-			return true;
+			return coinGetPoint;
 		}
 	}
-	return false;
+	return coinNotGet;
 }
 
 void Coin::ShowCoin()
@@ -459,7 +307,7 @@ void Coin::ShowCoin()
 
 		//コインの情報を設定
 		coinPos[i] = allCoinPos[selectCount];
-		coinRender[i].Init("Assets/modelData/coin/coin.tkm");
+		coinRender[i].Init("Assets/modelData/coin/coin2.tkm");
 		coinRender[i].SetPosition(coinPos[i]);
 		coinRender[i].Update();
 	}
@@ -467,25 +315,44 @@ void Coin::ShowCoin()
 
 void Coin::gameClear()
 {
-	wchar_t finishText[256];
-	swprintf_s(finishText, 256, L"1P:%d  2P:%d  3P:%d  4P:%d", playerPoint[0], playerPoint[1], playerPoint[2], playerPoint[3]);
-	timeRender.SetText(finishText);
-	timeRender.SetColor(Vector4::Gray);
-	timeRender.SetPosition({ -100.0f,0.0f });
+	if (gameAfterTimer >= maxBlancCount)
+	{
+		m_coinGameRes = FindGO<CoinGameResult>("coinGameResult");
+
+		if (m_coinGameRes == nullptr)
+		{
+			gameEndFlag = true;
+
+			m_coinPlayer = FindGO<CoinPlayer>("coinPlayer");
+
+			if (m_coinPlayer == nullptr)
+			{
+				DeleteGO(this);
+			}
+		}
+	}
+	else
+	{
+		wchar_t finishText[256];
+		swprintf_s(finishText, 256, L"finish!");
+		finishRender.SetText(finishText);
+		finishRender.SetColor(Vector4::Gray);
+		finishRender.SetPosition({ -100.0f,0.0f });
+
+		gameAfterTimer++;
+
+		if (gameAfterTimer >= maxBlancCount)
+		{
+			m_coinGameRes = NewGO<CoinGameResult>(1, "coinGameResult");
+		}
+	}
 }
 
 void Coin::Render(RenderContext& rc)
 {
 	//全てを描画
 	stageRender.Draw(rc);
-	charaRender.Draw(rc);
-	showPos.Draw(rc);
-	timeRender.Draw(rc);
-
-	for (int i = 0; i < AICount; i++)
-	{
-		AIRender[i].Draw(rc);
-	}
+	finishRender.Draw(rc);
 
 	for (int i = 0; i < coinCount; i++)
 	{

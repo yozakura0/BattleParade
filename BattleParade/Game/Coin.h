@@ -1,7 +1,13 @@
 #pragma once
+#include "CoinNumbers.h"
 
-#define coinCount 10
-#define AICount 3
+class CoinPlayer;
+class CoinAIplayerFirst;
+class CoinAIplayerSecond;
+class CoinAIplayerThird;
+class CoinGameResult;
+class CoinUI;
+class CoinGameResult;
 
 class Coin : public IGameObject
 {
@@ -11,50 +17,53 @@ public:
 
 	void Update();
 	void Render(RenderContext& rc);
-	void PlayerMove();
-	void AIMove();
-	bool CoinGet(Vector3 pos);
+	int CoinGet(Vector3 pos);
 	void ShowCoin();
 	void gameClear();
 
+	//ステージを表示するモデルレンダー
 	ModelRender stageRender;
-	ModelRender charaRender;
-	ModelRender coinRender[50];
-	ModelRender AIRender[3];
+	//コインを表示するモデルレンダー
+	ModelRender coinRender[coinCount];
+	//ステージの物理判定
 	PhysicsStaticObject stageObject;
-	CharacterController playerController;
-	CharacterController AIController[AICount];
-	FontRender showPos;
-	FontRender timeRender;
-	int mode = 0;
+	//時間の表示
+	FontRender finishRender;
 
-private:
-	enum EnAnimationClip {		//アニメーション。
-		enAnimationClip_Idle,
-		enAnimationClip_Walk,
-		enAnimationClip_Fall,
-		enAnimationClip_Jump,
-		enAnimationClip_Num
-	};
-	AnimationClip AnimationClips[enAnimationClip_Num];		//アニメーションクリップ。
-
-	Vector3 cameraPos = { 0.0f, 12000.0f, 1.0f };
-	Vector3 charaPos = { 0.0f, 3000.0f, -5000.0f };
-	Vector3 aiPos[AICount];
-	Vector3 charaMoveSpeed = { 0.0f, 0.0f, 0.0f };
-	Vector3 aiMoveSpeed[AICount];
-	Vector3 StickL;
-	Vector3 allCoinPos[276];
-	Quaternion rotation;
-	int coinListCount = 0;
-	float direction;
-	int gametime = 30;
-	int timeFrameCount;
-	bool noSameFrag;
-	int selectCount;
-	int countSaveList[coinCount];
+	//存在しているコインの座標
 	Vector3 coinPos[coinCount];
-	int playerPoint[4];
-	Vector3 difference[AICount];
+	//ゲームの時間
+	int gametime;
+	//ゲームを閉じるフラグ
+	bool gameEndFlag = false;
+private:
+	//Vector3 cameraPos = { 0.0f, 12000.0f, 1.0f };
+	//コインの出現する全座標
+	Vector3 allCoinPos[276];
+	//回転
+	Quaternion rotation;
+	//コインの全座標を登録する時に配列を進めるための変数
+	int coinListCount = 0;
+	//距離
+	float direction;
+	//フレームの進み具合を保存する変数
+	int timeFrameCount;
+	//乱数が被っていないかのフラグ
+	bool noSameFrag;
+	//乱数で選ばれた値を受け取る変数
+	int selectCount;
+	//出てくるコインの番号を覚える配列
+	int countSaveList[coinCount];
+	//コインを表示するフラグ
+	bool showCoinFlag;
+	//ゲーム終了後の待ち時間
+	int gameAfterTimer;
+
+	CoinPlayer* m_coinPlayer;
+	CoinAIplayerFirst* m_coinAI1;
+	CoinAIplayerSecond* m_coinAI2;
+	CoinAIplayerThird* m_coinAI3;
+	CoinUI* m_coinUI;
+	CoinGameResult* m_coinGameRes;
 };
 
